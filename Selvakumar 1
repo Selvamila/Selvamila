@@ -1,0 +1,103 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab import drive
+drive.mount('/content/drive')
+data = pd.read_csv("/Churn_Modelling (1).csv")
+data.head() #univariate analysis
+pd.plotting.scatter_matrix(data.loc[:, "Age":"Balance"], diagonal="kde",figsize=(20,15))
+plt.show() #multivariate analysis
+data.mean() #discriptive analysis
+/usr/local/lib/python3.7/dist-packages/ipykernel_launcher.py:1: FutureWarning: Dropping of nuisance columns in DataFrame reductions (with 'numeric_only=None') is deprecated; in a future version this will raise TypeError.  Select only valid columns before calling the reduction.
+  """Entry point for launching an IPython kernel.
+RowNumber          5.000500e+03
+CustomerId         1.569094e+07
+CreditScore        6.505288e+02
+Age                3.892180e+01
+Tenure             5.012800e+00
+Balance            7.648589e+04
+NumOfProducts      1.530200e+00
+HasCrCard          7.055000e-01
+IsActiveMember     5.151000e-01
+EstimatedSalary    1.000902e+05
+Exited             2.037000e-01
+dtype: float64
+RowNumber          0
+CustomerId         0
+Surname            0
+CreditScore        0
+Geography          0
+Gender             0
+Age                0
+Tenure             0
+Balance            0
+NumOfProducts      0
+HasCrCard          0
+IsActiveMember     0
+EstimatedSalary    0
+Exited             0
+dtype: int64
+import seaborn as sns
+q = data.quantile(q=[0.25,0.75]) #0utlier detection using upper and lower extreme
+q
+RowNumber            4999.5000
+CustomerId         124705.5000
+CreditScore           134.0000
+Age                    12.0000
+Tenure                  4.0000
+Balance            127644.2400
+NumOfProducts           1.0000
+HasCrCard               1.0000
+IsActiveMember          1.0000
+EstimatedSalary     98386.1375
+Exited                  0.0000
+dtype: float64
+upper_ex = q.loc[0.75]+1.5*IQR
+upper_ex
+RowNumber          1.499950e+04
+CustomerId         1.594029e+07
+CreditScore        9.190000e+02
+Age                6.200000e+01
+Tenure             1.300000e+01
+Balance            3.191106e+05
+NumOfProducts      3.500000e+00
+HasCrCard          2.500000e+00
+IsActiveMember     2.500000e+00
+EstimatedSalary    2.969675e+05
+Exited             0.000000e+00
+dtype: float64
+lower_ex = q.loc[0.25]-1.5*IQR
+lower_ex
+RowNumber         -4.998500e+03
+CustomerId         1.544147e+07
+CreditScore        3.830000e+02
+Age                1.400000e+01
+Tenure            -3.000000e+00
+Balance           -1.914664e+05
+NumOfProducts     -5.000000e-01
+HasCrCard         -1.500000e+00
+IsActiveMember    -1.500000e+00
+EstimatedSalary   -9.657710e+04
+Exited             0.000000e+00
+dtype: float64
+data[data['Age']>62]
+data[data['Age']<14]
+data['Age'] = np.where(data['Age']>62,data['Age'].mean(),data['Age']) #replacing the outliers using mean value
+data[data['Age']>62]
+data.head() #encoding
+pd.get_dummies(data,columns=['Surname']) #encoding method-1
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+data['Geography'] = le.fit_transform(data['Geography']) #method-2 (label encoding)
+data.head()
+ #seperating dependent and independent variables
+y = data['Exited']
+x = data.iloc[:,0:14]
+#splitting the data into train and test 
+from sklearn.model_selection import  train_test_split
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2)
+x_train.shape
+(8000, 14)
+x_test.shape
+(2000, 14)
